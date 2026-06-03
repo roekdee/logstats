@@ -1,19 +1,8 @@
 # logstats
 
-Turn web-server access logs into instant analytics — status histogram, top IPs/URLs, error rate, and traffic peaks — with zero dependencies.
-
 ![CI](https://github.com/roekdee/logstats/actions/workflows/ci.yml/badge.svg)
 
-## Features
-
-- Parses **Common** and **Combined** Log Format access logs
-- Total requests, **status-code histogram**, and **% error rate** (4xx/5xx)
-- **Top N** client IPs and requested URLs
-- **Requests-per-minute** buckets with the busiest (peak) minute
-- Reads from a **file** or **stdin** (pipe-friendly)
-- **Table** or **JSON** output (`--json`) and configurable `--top N`
-- Skips malformed lines gracefully and reports how many were skipped
-- Pure Python standard library — `argparse`, `re`, `collections`
+A little CLI I wrote to get a quick read on web-server access logs without opening up a spreadsheet or grepping by hand. Point it at a log file (Common or Combined Log Format) and it prints the total requests, a status-code histogram, the error rate, the busiest minute, and the top IPs and URLs. It's all standard library, no dependencies.
 
 ## Install
 
@@ -21,22 +10,25 @@ Turn web-server access logs into instant analytics — status histogram, top IPs
 pip install -e .
 ```
 
-Requires Python 3.12+.
+Needs Python 3.12+.
 
 ## Usage
 
 ```bash
-# From a file
-logstats access.log
-
-# From stdin
-cat access.log | logstats
-
-# Show the top 10 and emit JSON
+logstats access.log              # from a file
+cat access.log | logstats        # or from stdin
 logstats access.log --top 10 --json
 ```
 
-### Sample output (table)
+`--top N` controls how many IPs/URLs/minutes you see (default 5). `--json` swaps the table for JSON if you want to pipe it somewhere. Malformed lines get skipped and counted rather than blowing up.
+
+There's a sample log in `tests/sample.log` to try it against:
+
+```bash
+logstats tests/sample.log
+```
+
+Table output looks like this:
 
 ```text
 logstats report
@@ -49,35 +41,7 @@ Peak minute    : 2000-10-10T13:57 (3 requests)
 Status codes
 ------------
   200  5
-  301  1
   404  2
-  500  1
-
-Top 3 IPs
----------
-  ip           count
-  192.168.0.1  4
-  10.0.0.5     3
-  172.16.0.9   2
-```
-
-### Sample output (`--json`)
-
-```json
-{
-  "total_requests": 9,
-  "skipped_lines": 1,
-  "status_histogram": { "200": 5, "301": 1, "404": 2, "500": 1 },
-  "top_ips": [{ "ip": "192.168.0.1", "count": 4 }],
-  "error_count": 3,
-  "error_rate": 33.3333
-}
-```
-
-A small fixture lives at [`tests/sample.log`](tests/sample.log) if you want something to run against immediately:
-
-```bash
-logstats tests/sample.log
 ```
 
 ## Run tests
@@ -88,13 +52,11 @@ ruff check .
 pytest -q
 ```
 
-## Tech
+## Notes
 
-- Python 3.12+ standard library only (`argparse`, `re`, `collections`, `dataclasses`)
-- `src/` layout with a `console_scripts` entry point
-- `pytest` for unit + CLI (subprocess) tests
-- `ruff` for linting
-- GitHub Actions CI on push and pull request
+I kept it to the standard library on purpose — `argparse` + `re` + `collections` cover everything here, and it means there's nothing to install before it runs. The parsing is just a regex for the two common log formats; if your logs use a custom format it won't match and those lines get counted as skipped.
+
+It reads the whole file into memory rather than streaming, which is fine for the log sizes I deal with but would need rework for multi-GB files. If I come back to it, true streaming and maybe a `--since`/`--until` time filter are the first things I'd add.
 
 ## License
 
