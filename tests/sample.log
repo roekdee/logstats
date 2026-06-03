@@ -1,0 +1,10 @@
+192.168.0.1 - - [10/Oct/2000:13:55:36 -0700] "GET /index.html HTTP/1.0" 200 2326
+192.168.0.1 - - [10/Oct/2000:13:55:40 -0700] "GET /style.css HTTP/1.0" 200 512
+10.0.0.5 - frank [10/Oct/2000:13:56:01 -0700] "POST /api/login HTTP/1.1" 200 87 "http://example.com/" "Mozilla/5.0"
+10.0.0.5 - frank [10/Oct/2000:13:56:05 -0700] "GET /api/profile HTTP/1.1" 404 145 "http://example.com/" "Mozilla/5.0"
+192.168.0.1 - - [10/Oct/2000:13:56:10 -0700] "GET /index.html HTTP/1.0" 200 2326
+this is not a valid log line at all
+172.16.0.9 - - [10/Oct/2000:13:57:22 -0700] "GET /index.html HTTP/1.1" 500 0
+172.16.0.9 - - [10/Oct/2000:13:57:25 -0700] "GET /missing HTTP/1.1" 404 145
+10.0.0.5 - - [10/Oct/2000:13:57:30 -0700] "GET /index.html HTTP/1.1" 200 2326 "-" "curl/8.0"
+192.168.0.1 - - [10/Oct/2000:13:58:00 -0700] "GET /api/profile HTTP/1.1" 301 - "http://example.com/" "Mozilla/5.0"
